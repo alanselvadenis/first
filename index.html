@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alan Selva Denis — Senior Full-Stack .NET Developer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: rgba(255,255,255,0.07);
+    --gold: #c9a84c;
+    --gold-light: #e8c96d;
+    --gold-dim: rgba(201,168,76,0.15);
+    --text: #e8e6e0;
+    --text-muted: #7a7870;
+    --text-dim: #4a4845;
+    --accent: #3a6bff;
+    --accent-soft: rgba(58,107,255,0.12);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* Glow orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.18;
+  }
+  .orb-1 { width: 600px; height: 600px; background: var(--gold); top: -200px; right: -100px; }
+  .orb-2 { width: 400px; height: 400px; background: var(--accent); bottom: 20%; left: -150px; }
+  .orb-3 { width: 300px; height: 300px; background: var(--gold); bottom: -100px; right: 30%; opacity: 0.1; }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 1.2rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(10,10,15,0.8);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--gold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 8rem 4rem 4rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    width: 100%;
+  }
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s ease forwards;
+  }
+  .hero-tag::before {
+    content: '';
+    display: inline-block;
+    width: 32px; height: 1px;
+    background: var(--gold);
+  }
+  .hero-name {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 5vw, 5.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s ease forwards;
+  }
+  .hero-name span { color: var(--gold); }
+  .hero-role {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 480px;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s ease forwards;
+  }
+  .hero-cta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s ease forwards;
+  }
+  .btn-primary {
+    padding: 0.85rem 2rem;
+    background: var(--gold);
+    color: #0a0a0f;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.2);
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+  }
+  .btn-primary:hover::after { transform: translateX(0); }
+  .btn-outline {
+    padding: 0.85rem 2rem;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* Hero right — stats panel */
+  .hero-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    opacity: 0;
+    animation: fadeIn 1s 1s ease forwards;
+  }
+  .stat-cell {
+    background: var(--card);
+    padding: 2rem;
+    transition: background 0.3s;
+  }
+  .stat-cell:hover { background: var(--surface); }
+  .stat-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .stat-cell.wide { grid-column: span 2; }
+
+  /* SECTION COMMONS */
+  section {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 6rem 4rem;
+  }
+  .section-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .section-eyebrow::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    max-width: 60px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 3vw, 3rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 3rem;
+    color: var(--text);
+  }
+
+  /* SKILLS */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .skill-card {
+    background: var(--card);
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+  .skill-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .skill-card:hover { background: var(--surface); }
+  .skill-card:hover::before { transform: scaleX(1); }
+  .skill-category {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.8rem;
+  }
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.3rem 0.7rem;
+    background: var(--gold-dim);
+    color: var(--gold-light);
+    border: 1px solid rgba(201,168,76,0.2);
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+  }
+  .tag:hover { background: rgba(201,168,76,0.25); }
+  .tag.blue {
+    background: var(--accent-soft);
+    color: #7fa4ff;
+    border-color: rgba(58,107,255,0.2);
+  }
+
+  /* EXPERIENCE */
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 8px; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+  }
+  .exp-item {
+    position: relative;
+    margin-bottom: 3.5rem;
+    padding-left: 2.5rem;
+    opacity: 0;
+    transform: translateX(-20px);
+    animation: slideIn 0.6s ease forwards;
+  }
+  .exp-item:nth-child(1) { animation-delay: 0.1s; }
+  .exp-item:nth-child(2) { animation-delay: 0.25s; }
+  .exp-item:nth-child(3) { animation-delay: 0.4s; }
+  .exp-item::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 8px;
+    width: 10px; height: 10px;
+    background: var(--gold);
+    border-radius: 50%;
+    box-shadow: 0 0 16px rgba(201,168,76,0.6);
+  }
+  .exp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .exp-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .exp-period {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--gold);
+    padding: 0.25rem 0.7rem;
+    border: 1px solid rgba(201,168,76,0.25);
+    background: var(--gold-dim);
+    white-space: nowrap;
+  }
+  .exp-company {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+  }
+  .exp-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+  .exp-bullets {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .exp-bullets li {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    padding-left: 1.2rem;
+    position: relative;
+  }
+  .exp-bullets li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 0.8rem;
+  }
+
+  /* PROJECTS */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .project-card {
+    background: var(--card);
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+    cursor: default;
+  }
+  .project-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--gold), var(--accent));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s ease;
+  }
+  .project-card:hover { background: var(--surface); }
+  .project-card:hover::after { transform: scaleX(1); }
+  .project-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 5rem;
+    font-weight: 900;
+    color: rgba(201,168,76,0.06);
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    line-height: 1;
+    user-select: none;
+    transition: color 0.3s;
+  }
+  .project-card:hover .project-num { color: rgba(201,168,76,0.12); }
+  .project-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--gold);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+  }
+  .project-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+  .project-desc {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+  }
+
+  /* CONTACT */
+  .contact-section {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .contact-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+  }
+  .contact-big {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 4vw, 4rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+  }
+  .contact-big span { color: var(--gold); }
+  .contact-sub {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    max-width: 400px;
+  }
+  .contact-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .contact-link {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 1.5rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+  .contact-link:hover {
+    border-color: rgba(201,168,76,0.35);
+    background: var(--gold-dim);
+  }
+  .contact-link-icon {
+    width: 40px; height: 40px;
+    background: var(--gold-dim);
+    border: 1px solid rgba(201,168,76,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .contact-link-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+  }
+  .contact-link-value {
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+
+  /* FOOTER */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 2.5rem 4rem;
+    border-top: 1px solid var(--border);
+  }
+  footer p {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+  footer span { color: var(--gold); }
+
+  /* DIVIDER */
+  .line-divider {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 4rem;
+  }
+  .line-divider hr {
+    border: none;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { padding: 7rem 1.5rem 3rem; }
+    .hero-inner { grid-template-columns: 1fr; gap: 3rem; }
+    section { padding: 4rem 1.5rem; }
+    .projects-grid { grid-template-columns: 1fr; }
+    .contact-inner { grid-template-columns: 1fr; gap: 3rem; }
+    .line-divider { padding: 0 1.5rem; }
+    footer { padding: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background orbs -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">ASD / Portfolio</div>
+  <ul class="nav-links">
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-tag">Senior Full-Stack Developer</div>
+      <h1 class="hero-name">Alan Selva<br><span>Denis</span></h1>
+      <p class="hero-role">
+        Azure & Microservices Specialist with 10 years of experience building enterprise-grade systems for Deutsche Bank, Citi, and Nielsen.
+      </p>
+      <div class="hero-cta">
+        <a href="#experience" class="btn-primary">View Experience</a>
+        <a href="#contact" class="btn-outline">Get In Touch</a>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-cell">
+        <div class="stat-number">10</div>
+        <div class="stat-label">Years of experience</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-number">1M+</div>
+        <div class="stat-label">Daily transactions handled</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-number">50%</div>
+        <div class="stat-label">Server cost reduction</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-number">30%</div>
+        <div class="stat-label">Code quality improvement</div>
+      </div>
+      <div class="stat-cell wide">
+        <div class="stat-number" style="font-size:1.8rem; color: var(--text-muted);">Deutsche Bank · Citi · Nielsen</div>
+        <div class="stat-label">Enterprise clients</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SKILLS -->
+<section id="skills" class="reveal">
+  <div class="section-eyebrow">Technical Arsenal</div>
+  <h2 class="section-title">What I Build With</h2>
+  <div class="skills-grid">
+    <div class="skill-card">
+      <div class="skill-category">Backend</div>
+      <div class="skill-tags">
+        <span class="tag">.NET 8/9</span>
+        <span class="tag">ASP.NET Core</span>
+        <span class="tag">C#</span>
+        <span class="tag">Web API</span>
+        <span class="tag">Microservices</span>
+        <span class="tag">SignalR</span>
+        <span class="tag">WCF</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-category">Frontend</div>
+      <div class="skill-tags">
+        <span class="tag">React.js</span>
+        <span class="tag">TypeScript</span>
+        <span class="tag">JavaScript ES6+</span>
+        <span class="tag">HTML5</span>
+        <span class="tag">CSS3</span>
+        <span class="tag">Bootstrap</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-category">Cloud & DevOps</div>
+      <div class="skill-tags">
+        <span class="tag blue">Azure App Services</span>
+        <span class="tag blue">Azure Service Bus</span>
+        <span class="tag blue">Azure Functions</span>
+        <span class="tag blue">Azure Key Vault</span>
+        <span class="tag blue">Azure DevOps</span>
+        <span class="tag blue">Docker</span>
+        <span class="tag blue">CI/CD</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-category">Data Layer</div>
+      <div class="skill-tags">
+        <span class="tag">SQL Server</span>
+        <span class="tag">EF Core</span>
+        <span class="tag">LINQ</span>
+        <span class="tag">Redis</span>
+        <span class="tag">NoSQL</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-category">Legacy & Architecture</div>
+      <div class="skill-tags">
+        <span class="tag">ASP.NET MVC</span>
+        <span class="tag">.NET Framework 4.x</span>
+        <span class="tag">Clean Architecture</span>
+        <span class="tag">SOLID Principles</span>
+        <span class="tag">Web Forms</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-category">Domains</div>
+      <div class="skill-tags">
+        <span class="tag">Banking & Finance</span>
+        <span class="tag">Risk Management</span>
+        <span class="tag">Data Analytics</span>
+        <span class="tag">Enterprise Migration</span>
+        <span class="tag">High-Frequency Systems</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience" class="reveal">
+  <div class="section-eyebrow">Work History</div>
+  <h2 class="section-title">Professional Journey</h2>
+  <div class="timeline">
+
+    <div class="exp-item">
+      <div class="exp-header">
+        <div class="exp-title">Senior .NET Consultant</div>
+        <div class="exp-period">May 2023 – Present</div>
+      </div>
+      <div class="exp-company">HCLTech → Deutsche Bank</div>
+      <div class="exp-stack">
+        <span class="tag">.NET 8</span>
+        <span class="tag">ASP.NET Core</span>
+        <span class="tag blue">Azure</span>
+        <span class="tag">React</span>
+        <span class="tag">Microservices</span>
+      </div>
+      <ul class="exp-bullets">
+        <li>Lead developer on a high-frequency banking platform processing 1M+ daily transactions with sub-second latency.</li>
+        <li>Architected a distributed system using Azure Service Bus and Microservices — decoupling core banking functions to improve fault tolerance.</li>
+        <li>Mentored junior developers on Clean Architecture and SOLID principles, raising team code quality scores by 30%.</li>
+      </ul>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-header">
+        <div class="exp-title">Senior Software Engineer</div>
+        <div class="exp-period">Sep 2021 – Apr 2023</div>
+      </div>
+      <div class="exp-company">HCLTech → Citi Bank</div>
+      <div class="exp-stack">
+        <span class="tag">.NET Core 6</span>
+        <span class="tag">ASP.NET MVC</span>
+        <span class="tag">React</span>
+        <span class="tag">SQL Server</span>
+        <span class="tag blue">Azure DevOps</span>
+      </div>
+      <ul class="exp-bullets">
+        <li>Developed a secure Risk Management Dashboard with React UI and ASP.NET Core Web API backend.</li>
+        <li>Modernized legacy ASP.NET MVC modules to .NET Core — achieving a 50% reduction in server resource consumption.</li>
+        <li>Implemented Azure Key Vault for secure secret management, ensuring compliance with global banking security standards.</li>
+      </ul>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-header">
+        <div class="exp-title">IT Analyst / .NET Developer</div>
+        <div class="exp-period">Mar 2016 – Aug 2021</div>
+      </div>
+      <div class="exp-company">TCS → Nielsen</div>
+      <div class="exp-stack">
+        <span class="tag">ASP.NET MVC</span>
+        <span class="tag">C#</span>
+        <span class="tag">JavaScript</span>
+        <span class="tag">Web API</span>
+        <span class="tag">SQL Server</span>
+      </div>
+      <ul class="exp-bullets">
+        <li>Designed and maintained global data analytics portals processing complex datasets with C# and LINQ.</li>
+        <li>Engineered a custom reporting engine enabling clients to generate real-time market share visualizations.</li>
+        <li>Optimized SQL Server stored procedures and indexing — reducing report generation from minutes to seconds.</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects" class="reveal">
+  <div class="section-eyebrow">Featured Work</div>
+  <h2 class="section-title">Key Projects</h2>
+  <div class="projects-grid">
+
+    <div class="project-card">
+      <div class="project-num">01</div>
+      <div class="project-label">Deutsche Bank · Real-Time</div>
+      <h3 class="project-title">Real-Time Payment Settlement System</h3>
+      <p class="project-desc">
+        Built a real-time notification engine using SignalR and Azure Functions to deliver instant settlement status to traders, replacing a legacy polling mechanism and dramatically reducing latency.
+      </p>
+      <div class="skill-tags">
+        <span class="tag">.NET Core</span>
+        <span class="tag">SignalR</span>
+        <span class="tag blue">Azure Functions</span>
+        <span class="tag">React</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-num">02</div>
+      <div class="project-label">Citi Bank · Cloud Migration</div>
+      <h3 class="project-title">Legacy Migration & Cloud Transformation</h3>
+      <p class="project-desc">
+        Directed the end-to-end migration of a monolithic treasury application to a cloud-ready ASP.NET Core app — enabling a seamless move to Azure App Services with improved scalability and maintainability.
+      </p>
+      <div class="skill-tags">
+        <span class="tag">ASP.NET Core</span>
+        <span class="tag blue">Azure App Services</span>
+        <span class="tag">MVC → .NET Core</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="contact-section reveal">
+  <div class="contact-inner">
+    <div>
+      <div class="section-eyebrow">Get In Touch</div>
+      <h2 class="contact-big">Let's build<br>something <span>great.</span></h2>
+      <p class="contact-sub">
+        Open to senior engineering roles, consulting engagements, and high-impact enterprise projects in the Microsoft / Azure ecosystem.
+      </p>
+    </div>
+    <div class="contact-links">
+      <a href="mailto:aalanselvadenis@gmail.com" class="contact-link">
+        <div class="contact-link-icon">✉</div>
+        <div>
+          <div class="contact-link-label">Email</div>
+          <div class="contact-link-value">aalanselvadenis@gmail.com</div>
+        </div>
+      </a>
+      <a href="tel:9629083663" class="contact-link">
+        <div class="contact-link-icon">☎</div>
+        <div>
+          <div class="contact-link-label">Phone</div>
+          <div class="contact-link-value">+91 96290 83663</div>
+        </div>
+      </a>
+      <div class="contact-link" style="cursor: default;">
+        <div class="contact-link-icon">📍</div>
+        <div>
+          <div class="contact-link-label">Location</div>
+          <div class="contact-link-value">India (Open to relocation)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 <span>Alan Selva Denis</span> — Senior Full-Stack .NET Developer</p>
+</footer>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Smooth active nav highlight
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 200) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === `#${current}` ? 'var(--gold)' : '';
+    });
+  });
+</script>
+</body>
+</html>
